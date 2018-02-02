@@ -109,7 +109,7 @@ class Facebook implements  INetWork {
             ];
     }
 
-    private function _getTokenUrl($app_id, $app_secret)
+    private function _getTokenUrl($app_id, $app_secret): string
     {
         return self::ENDPOINT_OAUTH ."?client_id=$app_id&client_secret=$app_secret&grant_type=client_credentials";
     }

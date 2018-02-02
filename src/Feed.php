@@ -23,7 +23,7 @@ class Feed {
      * @return array
      * @throws \Exception
      */
-    public function getNews(String $feedUrl):array{
+    public function getNews(string $feedUrl):array{
 
         try{
             if(!Validator::isUrl($feedUrl))
@@ -49,11 +49,11 @@ class Feed {
         return $news;
     }
 
-    private function _removeQueryString($url):string{
+    private function _removeQueryString(string $url):string{
         $urlParsed = parse_url($url);
         return $urlParsed['scheme'].'://' . $urlParsed['host'] . '/' . $urlParsed['path'];
     }
-    private function _doRequest($uri):string{
+    private function _doRequest(string $uri):string{
         $client  = new Client(['timeout'  => self::DEFAULT_TIMEOUT,'headers'=> [
             'User-Agent' => 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)'
         ]]);
