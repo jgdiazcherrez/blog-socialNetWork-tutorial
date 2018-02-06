@@ -7,7 +7,7 @@
  */
 
 require_once '../vendor/autoload.php';
-$facebook = new Social\Facebook();
+$facebook = Social\Facebook::getInstance();
 $facebook->connect('your_app_id', 'your_app_secret');
 $data = $facebook->getSharesCount(['https://google.es', 'https://marca.com', 'https://elconfidencial.com']);
 var_dump($data);

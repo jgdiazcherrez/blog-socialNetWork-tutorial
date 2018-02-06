@@ -7,6 +7,6 @@
  */
 
 require_once '../vendor/autoload.php';
-$feed = new Social\Feed();
+$feed =  Social\Feed::getInstance();
 var_dump($feed->getNews('http://ep00.epimg.net/rss/elpais/portada.xml'));
 die;

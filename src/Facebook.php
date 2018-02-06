@@ -14,26 +14,24 @@ use GuzzleHttp\Client;
  * @author Jonathan Díaz
  * @package Social
  */
-class Facebook implements  INetWork {
+class Facebook extends ClientRequest implements  INetWork {
 
     const LIMIT_IDS = 50;
     const ENDPOINT_GRAPH_API = 'https://graph.facebook.com/v2.11/';
     const ENDPOINT_OAUTH = 'https://graph.facebook.com/oauth/access_token';
-    const STATUS_OK =  200;
-    const DEFAULT_TIMEOUT = 200;
-
-    private $_access_token;
-    /**
-     * @var Client
-     */
-    private $_clientRequest;
+    const DEFAULT_TIMEOUT = 300;
 
     /**
-     * Facebook constructor.
+     * Singleton Instance
+     * @return Facebook
      */
-    public function __construct()
+    public static function getInstance()
     {
-        $this->_clientRequest = new Client();
+        static $i;
+        if(!$i){
+            $i = new Facebook(new Client());
+        }
+        return $i;
     }
 
     /**
@@ -60,8 +58,7 @@ class Facebook implements  INetWork {
      * @throws \Exception
      */
     public function getSharesCount(array $urls) : array{
-        if(!$this->_access_token)
-            throw new \Exception("You haven't connected to the Social Network");
+        $this->_assertConnection();
         $chunkData = array_chunk($urls, self::LIMIT_IDS);
         $dataShares = [];
         foreach($chunkData as $itemData){
@@ -86,14 +83,6 @@ class Facebook implements  INetWork {
             }
         }
         return $dataShares;
-    }
-
-    private function _doRequest($method, $uri, $params = []) : array {
-        sleep(1);
-        $response = $this->_clientRequest->request($method, $uri, $params);
-        if($response->getStatusCode() != self::STATUS_OK)
-            throw new \Exception('Invalid Status Code');
-        return json_decode($response->getBody()->getContents(), true);
     }
 
     private function _getSharesParams($itemData) : array {

@@ -14,10 +14,19 @@ use GuzzleHttp\Client;
  * @author Jonathan Díaz
  * @package Social
  */
-class Feed {
+class Feed extends ClientRequest  {
 
 
     const DEFAULT_TIMEOUT = 100;
+
+    public static function getInstance()
+    {
+        static $i;
+        if(!$i){
+            $i = new Feed(new Client());
+        }
+        return $i;
+    }
     /**
      * @param String $feedUrl
      * @return array
@@ -28,15 +37,20 @@ class Feed {
         try{
             if(!Validator::isUrl($feedUrl))
                 throw new \Exception('Invalid URL');
-            $news = $this->_fillData($this->_doRequest($feedUrl));
+            $news = $this->_fillData($this->_doRequest('GET',
+                $feedUrl,
+                [   'timeout' => self::DEFAULT_TIMEOUT,
+                    'headers' => ['User-Agent' => 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)']
+                ],
+            false));
         }
         catch(\Exception $e){
             throw new \Exception('Error obtaining Feed Data');
         }
         return $news;
     }
-    private function _fillData($xmlData) : array{
-        $dataXML = simplexml_load_string($xmlData, null, LIBXML_NOCDATA);
+    private function _fillData($xmlRequest) : array{
+        $dataXML = simplexml_load_string($xmlRequest, null, LIBXML_NOCDATA);
         date_default_timezone_set('Europe/Madrid');
         if(!$dataXML || !isset($dataXML->channel->item)){
            throw new \Exception('Invalid Feed, check structure');
@@ -47,17 +61,5 @@ class Feed {
             array_push($news, $url);
         }
         return $news;
-    }
-
-    private function _removeQueryString(string $url):string{
-        $urlParsed = parse_url($url);
-        return $urlParsed['scheme'].'://' . $urlParsed['host'] . '/' . $urlParsed['path'];
-    }
-    private function _doRequest(string $uri):string{
-        $client  = new Client(['timeout'  => self::DEFAULT_TIMEOUT,'headers'=> [
-            'User-Agent' => 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)'
-        ]]);
-        $res = $client->request('GET', $uri);
-        return $res->getBody()->getContents();
     }
 }
